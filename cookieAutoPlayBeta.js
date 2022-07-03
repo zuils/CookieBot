@@ -372,10 +372,22 @@ AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   }
 }
 
+// Cookie Monster no longer exposes this function
+// TODO: move this elsewhere
+AutoPlay.GetWrinkConfigBank = function() {
+  if (Game.mods.cookieMonsterFramework.saveData.cookieMonsterMod.settings.CalcWrink === 1) {
+    return CookieMonsterData.Cache.WrinklersTotal;
+  }
+  if (Game.mods.cookieMonsterFramework.saveData.cookieMonsterMod.settings.CalcWrink === 2) {
+    return CookieMonsterData.Cache.WrinklersFattest[0];
+  }
+  return 0;
+}
+
 //======================= CM Strategy ============================
 AutoPlay.bestBuy = function() {
   // if cookie monster isn't installed
-  if (typeof CM == 'undefined') {
+  if (typeof CookieMonsterData == 'undefined') {
     AutoPlay.handleBuildings();
     AutoPlay.handleUpgrades();
     return;
@@ -392,18 +404,19 @@ AutoPlay.bestBuy = function() {
 
   // these values are multiplied by game.cps below
   const overrides = {
-    'Plastic mouse': CM.Cache.AvgClicks * 0.01,
-    'Iron mouse': CM.Cache.AvgClicks * 0.01,
-    'Titanium mouse': CM.Cache.AvgClicks * 0.01,
-    'Adamantium mouse': CM.Cache.AvgClicks * 0.01,
-    'Unobtainium mouse': CM.Cache.AvgClicks * 0.01,
-    'Eludium mouse': CM.Cache.AvgClicks * 0.01,
-    'Wishalloy mouse': CM.Cache.AvgClicks * 0.01,
-    'Fantasteel mouse': CM.Cache.AvgClicks * 0.01,
-    'Nevercrack mouse': CM.Cache.AvgClicks * 0.01,
-    'Armythril mouse': CM.Cache.AvgClicks * 0.01,
-    'Technobsidian mouse': CM.Cache.AvgClicks * 0.01,
-    'Plasmarble mouse': CM.Cache.AvgClicks * 0.01,
+    'Plastic mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Iron mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Titanium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Adamantium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Unobtainium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Eludium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Wishalloy mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Fantasteel mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Nevercrack mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Armythril mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Technobsidian mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Plasmarble mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Miraculite mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
     'Lucky day': 0.5,
     'Serendipity': 0.5,
     'Get lucky': 0.5,
@@ -415,22 +428,37 @@ AutoPlay.bestBuy = function() {
     'Season savings': 0.01,
     'Toy workshop': 0.05,
     'Santa\'s bottomless bag': 0.1,
-    'Santa\'s helpers': CM.Cache.AvgClicks * 0.1,
+    'Santa\'s helpers': CookieMonsterData.Cache.AverageClicks * 0.1,
     'Golden goose egg': 0.05,
     'Faberge egg': 0.01,
     'Wrinklerspawn': 0.05,
-    'Cookie egg': CM.Cache.AvgClicks * 0.1,
+    'Cookie egg': CookieMonsterData.Cache.AverageClicks * 0.1,
     'Omelette': 0.1,
     'Elder Pledge': 0.1, // avoidbuy will catch this if have achievement
   }
 
   // change cookie monster values for some 'infinite' pp upgrades
-  for (var u in CM.Cache.Upgrades) {
+  for (var u in CookieMonsterData.Upgrades) {
     if (u in overrides){
-      CM.Cache.Upgrades[u].bonus = overrides[u]* Game.cookiesPs;
-      CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
+      CookieMonsterData.Upgrades[u].bonus = overrides[u] * Game.cookiesPs;
+      CookieMonsterData.Upgrades[u].pp =
+        Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + AutoPlay.GetWrinkConfigBank()), 0) /
+          Game.cookiesPs + Game.Upgrades[u].getPrice() / CookieMonsterData.Cache.Upgrades[u].bonus;
     }
   }
+
+  for (var u in CookieMonsterData.Upgrades) {
+    if (u in overrides) {
+      console.log("Upgrade ", u);
+      CookieMonsterData.Upgrades[u].bonus = overrides[u] * Game.cookiesPs;
+      console.log("bonus ", CookieMonsterData.Upgrades[u].bonus);
+      CookieMonsterData.Upgrades[u].pp =
+        Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + AutoPlay.GetWrinkConfigBank()), 0) /
+          Game.cookiesPs + Game.Upgrades[u].getPrice() / CookieMonsterData.Cache.Upgrades[u].bonus;
+      console.log("pp ", CookieMonsterData.Upgrades[u].pp);
+    }
+  }
+
 
   // buildings
   let check_obj = CM.Cache.Objects;
@@ -2227,7 +2255,7 @@ if (AutoPlay.autoPlayer) {
   AutoPlay.info("replacing old version of autoplay");
   clearInterval(AutoPlay.autoPlayer);
 }
-AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
+//AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
 AutoPlay.findNextAchievement();
 l('versionNumber').innerHTML=
   'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
