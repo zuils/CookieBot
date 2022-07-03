@@ -363,7 +363,7 @@ AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
     AutoPlay.hyperActive=true; // might buy more soon
     return true;
   }
-  console.log("ASDF Not buying building", building);
+  //console.log("ASDF Not buying building", building);
   return false;
 }
 
@@ -483,6 +483,8 @@ AutoPlay.bestBuy = function() {
     }
   }
 
+  console.log("ASDF After buildings min pp: ", minpp, "best: ", best, "type: ", type);
+
   // if payback period is very short, buy 10 buildings next time
   AutoPlay.buy10 = minpp < 1;
 
@@ -490,8 +492,11 @@ AutoPlay.bestBuy = function() {
   if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0) {
     for (var u of Game.UpgradesInStore) {
       if (!AutoPlay.avoidbuy(u) && !u.bought) {
-        if (CookieMonsterData.Upgrades[u.name].pp < 1)
+        console.log("ASDF Upgrade ", u);
+        console.log("ASDF pp: ", CookieMonsterData.Upgrades[u.name].pp, " minpp: ", minpp);      
+        if (CookieMonsterData.Upgrades[u.name].pp < 1) {
           if (AutoPlay.buyUpgrade(u)) haveBought=true;
+        }
         else if (CookieMonsterData.Upgrades[u.name].pp < minpp) {
           minpp = CookieMonsterData.Upgrades[u.name].pp;
           best = u.name;
@@ -501,10 +506,15 @@ AutoPlay.bestBuy = function() {
     }
   }
 
-  if (type == 'building')
-    if (AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt)) haveBought=true;
-  else if (type == 'upgrade')
-    if (AutoPlay.buyUpgrade(Game.Upgrades[best], true)) haveBought=true;
+  console.log("ASDF After upgrades min pp: ", minpp, "best: ", best, "type: ", type);
+
+  if (type == "building") {
+    if (AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt))
+      haveBought = true;
+  } else if (type == "upgrade") {
+    if (AutoPlay.buyUpgrade(Game.Upgrades[best], true))
+      haveBought = true;
+  }
 
   // sugar frenzy check
   if (AutoPlay.canUseLumps && Game.Upgrades["Sugar frenzy"].unlocked &&
