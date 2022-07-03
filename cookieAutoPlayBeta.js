@@ -358,18 +358,22 @@ AutoPlay.handleSavings = function() {
 
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
+    console.log("ASDF Buying building", building);
     building.buy(buyAmount);
     AutoPlay.hyperActive=true; // might buy more soon
     return true;
   }
+  console.log("ASDF Not buying building", building);
   return false;
 }
 
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
+    console.log("ASDF Buying upgrade", upgrade);
     upgrade.buy(bypass);
     AutoPlay.hyperActive=true;  // might buy more soon
   }
+  console.log("ASDF Not buying upgrade", upgrade);
 }
 
 // Cookie Monster no longer exposes this function
@@ -439,29 +443,21 @@ AutoPlay.bestBuy = function() {
 
   // change cookie monster values for some 'infinite' pp upgrades
   for (var u in CookieMonsterData.Upgrades) {
-    if (u in overrides){
-      CookieMonsterData.Upgrades[u].bonus = overrides[u] * Game.cookiesPs;
-      CookieMonsterData.Upgrades[u].pp =
-        Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + AutoPlay.GetWrinkConfigBank()), 0) /
-          Game.cookiesPs + Game.Upgrades[u].getPrice() / CookieMonsterData.Cache.Upgrades[u].bonus;
-    }
-  }
-
-  for (var u in CookieMonsterData.Upgrades) {
     if (u in overrides) {
-      console.log("Upgrade ", u);
+      console.log("ASDF Upgrade ", u);
+      console.log("ASDF overrides[u] ", overrides[u]);
       CookieMonsterData.Upgrades[u].bonus = overrides[u] * Game.cookiesPs;
-      console.log("bonus ", CookieMonsterData.Upgrades[u].bonus);
+      console.log("ASDF bonus ", CookieMonsterData.Upgrades[u].bonus);
       CookieMonsterData.Upgrades[u].pp =
         Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + AutoPlay.GetWrinkConfigBank()), 0) /
-          Game.cookiesPs + Game.Upgrades[u].getPrice() / CookieMonsterData.Cache.Upgrades[u].bonus;
-      console.log("pp ", CookieMonsterData.Upgrades[u].pp);
+          Game.cookiesPs + Game.Upgrades[u].getPrice() / CookieMonsterData.Upgrades[u].bonus;
+      console.log("ASDF pp ", CookieMonsterData.Upgrades[u].pp);
     }
   }
 
 
   // buildings
-  let check_obj = CM.Cache.Objects;
+  let check_obj = CookieMonsterData.Objects1;
   let buy_amt = 1;
   if ((Game.resets && Game.ascensionMode!=1 &&
        Game.isMinigameReady(Game.Objects["Temple"]) &&
@@ -470,7 +466,7 @@ AutoPlay.bestBuy = function() {
       || AutoPlay.buy10){
     // if owned % 10 != 0, will just buy one
     buy_amt = 10;
-    check_obj = CM.Cache.Objects10;
+    check_obj = CookieMonsterData.Objects10;
   }
 
   var haveBought=false;
@@ -494,10 +490,10 @@ AutoPlay.bestBuy = function() {
   if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0) {
     for (var u of Game.UpgradesInStore) {
       if (!AutoPlay.avoidbuy(u) && !u.bought) {
-        if (CM.Cache.Upgrades[u.name].pp < 1)
+        if (CookieMonsterData.Upgrades[u.name].pp < 1)
           if (AutoPlay.buyUpgrade(u)) haveBought=true;
-        else if (CM.Cache.Upgrades[u.name].pp < minpp) {
-          minpp = CM.Cache.Upgrades[u.name].pp;
+        else if (CookieMonsterData.Upgrades[u.name].pp < minpp) {
+          minpp = CookieMonsterData.Upgrades[u.name].pp;
           best = u.name;
           type = 'upgrade';
         }
@@ -2255,7 +2251,7 @@ if (AutoPlay.autoPlayer) {
   AutoPlay.info("replacing old version of autoplay");
   clearInterval(AutoPlay.autoPlayer);
 }
-//AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
+AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
 AutoPlay.findNextAchievement();
 l('versionNumber').innerHTML=
   'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
