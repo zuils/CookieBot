@@ -474,8 +474,10 @@ AutoPlay.bestBuy = function() {
   // than a second.  It's better to just buy it instead of checking it repeatedly
   // CheckDragon twice in case the pp < 1 case set us over the limit
   for (var b in check_obj){
-    if (AutoPlay.checkDragon(b) && check_obj[b].pp < 1)
-      if (AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt)) haveBought=true;
+    if (AutoPlay.checkDragon(b) && check_obj[b].pp < 1) {
+      if (AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt))
+        haveBought = true;
+    }
     if (check_obj[b].pp < minpp && AutoPlay.checkDragon(b)) {
       minpp = check_obj[b].pp;
       best = b;
